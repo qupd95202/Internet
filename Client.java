@@ -14,8 +14,9 @@ public class Client {
     private BufferedReader in;
     private Socket socket;
     private String data;
-    public static class Command{
-        private int serialNum ;
+
+    public static class Command {
+        private int serialNum;
         private int commandCode;
         private ArrayList<String> strs;
 
@@ -101,6 +102,9 @@ public class Client {
     }
 
     public void sendCommand(Command command) {
+        if (out == null) {
+            return;
+        }
         StringBuilder input = new StringBuilder();
         input.append(command.serialNum);
         input.append(",");
@@ -115,8 +119,8 @@ public class Client {
     }
 
     public Command getCommand() {
-        if (data.equals("")) {
-            return new Command(9999,9999,new ArrayList<>());  //若沒有資料，則傳出一個預設值
+        if (in == null || data.equals("")) {
+            return new Command(9999, 9999, new ArrayList<>());  //若沒有資料，則傳出一個預設值
         }
         ArrayList<String> parsedData = parse(data);
         int serialNum = Integer.parseInt(parsedData.get(0));

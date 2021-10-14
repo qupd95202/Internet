@@ -35,6 +35,7 @@ public class ClientListenerThread extends Server implements Runnable {
                     flag = false;
                     continue;
                 }
+                //向線上客戶端輸出資訊
                 print(line);
             }
             closeConnect();
@@ -76,6 +77,6 @@ public class ClientListenerThread extends Server implements Runnable {
         synchronized (sockets) {
             sockets.remove(socket);
         }
-        socket.close();
+//        socket.close();  不確定要不要留
     }
 }
