@@ -24,7 +24,7 @@ public class Server {
     }
 
     //將接收到的socket變成一個集合
-    protected static List<Socket> sockets = new Vector<>();
+    protected  List<Socket> sockets = new Vector<>();
 
     //開跑伺服器
     public void start() {
