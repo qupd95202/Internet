@@ -13,7 +13,7 @@ public class Client {
     private PrintWriter out;
     private BufferedReader in;
     private Socket socket;
-//    private String data;
+    private String data;
 
     public static class Command {
         private int serialNum;
@@ -43,7 +43,7 @@ public class Client {
 
     private Client() {
         this.isStop = false;
-//        this.data = "";
+        this.data = "";
     }
 
     public static Client getInstance() {
@@ -74,8 +74,7 @@ public class Client {
         }).start();
     }
 
-    private Command getCommand() throws IOException {
-        final String[] data = new String[1];
+    public void connect() throws IOException {
         //建立一個執行緒用於讀取伺服器的資訊
         new Thread(new Runnable() {
             @Override
@@ -84,17 +83,17 @@ public class Client {
                     while (!isStop) {
                         String str = "";
                         str = in.readLine();// 逗號分隔字串
-                        data[0] = str;
+                        data = str;
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         }).start();
-        if (in == null || data[0].equals("")) {
+        if (in == null || data.equals("")) {
             return new Command(9999, 9999, new ArrayList<>());  //若沒有資料，則傳出一個預設值
         }
-        ArrayList<String> parsedData = parse(data[0]);
+        ArrayList<String> parsedData = parse(data);
         int serialNum = Integer.parseInt(parsedData.get(0));
         int commandCode = Integer.parseInt(parsedData.get(1));
         parsedData.remove(0);
@@ -127,17 +126,17 @@ public class Client {
         out.flush();
     }
 
-//    public Command getCommand() {
-//        if (in == null || data.equals("")) {
-//            return new Command(9999, 9999, new ArrayList<>());  //若沒有資料，則傳出一個預設值
-//        }
-//        ArrayList<String> parsedData = parse(data);
-//        int serialNum = Integer.parseInt(parsedData.get(0));
-//        int commandCode = Integer.parseInt(parsedData.get(1));
-//        parsedData.remove(0);
-//        parsedData.remove(0);
-//        return new Command(serialNum, commandCode, parsedData);
-//    }
+    public Command getCommand() {
+        if (in == null || data.equals("")) {
+            return new Command(9999, 9999, new ArrayList<>());  //若沒有資料，則傳出一個預設值
+        }
+        ArrayList<String> parsedData = parse(data);
+        int serialNum = Integer.parseInt(parsedData.get(0));
+        int commandCode = Integer.parseInt(parsedData.get(1));
+        parsedData.remove(0);
+        parsedData.remove(0);
+        return new Command(serialNum, commandCode, parsedData);
+    }
 
     public static ArrayList<String> parse(String data) {
         String[] str = data.split(",");
