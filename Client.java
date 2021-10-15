@@ -42,7 +42,7 @@ public class Client {
     private static Client client;
 
     private Client() {
-        this.isStop = false;
+        this.isStop = true;
         this.data = "";
     }
 
@@ -101,6 +101,7 @@ public class Client {
     }
 
     public void sendCommand(Command command) {
+        isStop = false;
         if (out == null) {
             return;
         }
@@ -126,6 +127,7 @@ public class Client {
         int commandCode = Integer.parseInt(parsedData.get(1));
         parsedData.remove(0);
         parsedData.remove(0);
+        isStop = true;
         return new Command(serialNum, commandCode, parsedData);
     }
 
