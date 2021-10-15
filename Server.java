@@ -24,7 +24,7 @@ public class Server {
     }
 
     //將接收到的socket變成一個集合
-    protected  List<Socket> sockets = new Vector<>();
+    protected static final List<Socket> sockets = new Vector<>();
 
     //開跑伺服器
     public void start() {
@@ -44,7 +44,7 @@ public class Server {
 
     private void exec() throws IOException {
         //建立服務端
-        serverSocket = new ServerSocket(5200);
+        serverSocket = new ServerSocket(5300);
         boolean flag = true;
         //接受客戶端請求
         while (flag) {
