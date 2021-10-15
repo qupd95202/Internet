@@ -13,7 +13,7 @@ public class Client {
     private PrintWriter out;
     private BufferedReader in;
     private Socket socket;
-    private String data;
+//    private String data;
 
     public static class Command {
         private int serialNum;
@@ -43,7 +43,7 @@ public class Client {
 
     private Client() {
         this.isStop = false;
-        this.data = "";
+//        this.data = "";
     }
 
     public static Client getInstance() {
@@ -62,7 +62,11 @@ public class Client {
             @Override
             public void run() {
                 try {
-                    connect(port, serverIP);
+                    //建立連線指定Ip和埠的socket
+                    socket = new Socket(serverIP, port);
+                    //獲取系統標準輸入流
+                    out = new PrintWriter(socket.getOutputStream());
+                    in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -70,12 +74,8 @@ public class Client {
         }).start();
     }
 
-    private void connect(int port, String serverIP) throws IOException {
-        //建立連線指定Ip和埠的socket
-        socket = new Socket(serverIP, port);
-        //獲取系統標準輸入流
-        out = new PrintWriter(socket.getOutputStream());
-        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+    private Command getCommand() throws IOException {
+        final String[] data = new String[1];
         //建立一個執行緒用於讀取伺服器的資訊
         new Thread(new Runnable() {
             @Override
@@ -84,13 +84,22 @@ public class Client {
                     while (!isStop) {
                         String str = "";
                         str = in.readLine();// 逗號分隔字串
-                        data = str;
+                        data[0] = str;
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         }).start();
+        if (in == null || data[0].equals("")) {
+            return new Command(9999, 9999, new ArrayList<>());  //若沒有資料，則傳出一個預設值
+        }
+        ArrayList<String> parsedData = parse(data[0]);
+        int serialNum = Integer.parseInt(parsedData.get(0));
+        int commandCode = Integer.parseInt(parsedData.get(1));
+        parsedData.remove(0);
+        parsedData.remove(0);
+        return new Command(serialNum, commandCode, parsedData);
     }
 
     public void closeConnect() throws IOException {
@@ -118,17 +127,17 @@ public class Client {
         out.flush();
     }
 
-    public Command getCommand() {
-        if (in == null || data.equals("")) {
-            return new Command(9999, 9999, new ArrayList<>());  //若沒有資料，則傳出一個預設值
-        }
-        ArrayList<String> parsedData = parse(data);
-        int serialNum = Integer.parseInt(parsedData.get(0));
-        int commandCode = Integer.parseInt(parsedData.get(1));
-        parsedData.remove(0);
-        parsedData.remove(0);
-        return new Command(serialNum, commandCode, parsedData);
-    }
+//    public Command getCommand() {
+//        if (in == null || data.equals("")) {
+//            return new Command(9999, 9999, new ArrayList<>());  //若沒有資料，則傳出一個預設值
+//        }
+//        ArrayList<String> parsedData = parse(data);
+//        int serialNum = Integer.parseInt(parsedData.get(0));
+//        int commandCode = Integer.parseInt(parsedData.get(1));
+//        parsedData.remove(0);
+//        parsedData.remove(0);
+//        return new Command(serialNum, commandCode, parsedData);
+//    }
 
     public static ArrayList<String> parse(String data) {
         String[] str = data.split(",");
