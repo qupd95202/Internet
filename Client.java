@@ -42,7 +42,7 @@ public class Client {
     private static Client client;
 
     private Client() {
-        this.isStop = true;
+        this.isStop = false;
         this.data = "";
     }
 
@@ -62,11 +62,7 @@ public class Client {
             @Override
             public void run() {
                 try {
-                    //建立連線指定Ip和埠的socket
-                    socket = new Socket(serverIP, port);
-                    //獲取系統標準輸入流
-                    out = new PrintWriter(socket.getOutputStream());
-                    in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                    connect(port, serverIP);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -74,7 +70,12 @@ public class Client {
         }).start();
     }
 
-    public void connect() throws IOException {
+    private void connect(int port, String serverIP) throws IOException {
+        //建立連線指定Ip和埠的socket
+        socket = new Socket(serverIP, port);
+        //獲取系統標準輸入流
+        out = new PrintWriter(socket.getOutputStream());
+        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         //建立一個執行緒用於讀取伺服器的資訊
         new Thread(new Runnable() {
             @Override
@@ -101,10 +102,6 @@ public class Client {
     }
 
     public void sendCommand(Command command) {
-        isStop = false;
-        if (out == null) {
-            return;
-        }
         StringBuilder input = new StringBuilder();
         input.append(command.serialNum);
         input.append(",");
@@ -114,23 +111,21 @@ public class Client {
             input.append(string);
         }
         String msg = input.toString();
-        out.println(msg+"\r\n");
+        out.println(msg);
         out.flush();
     }
 
     public Command getCommand() {
-        synchronized (data) {
-            if (in == null || data.equals("")) {
-                return new Command(9999, 9999, new ArrayList<>());  //若沒有資料，則傳出一個預設值
-            }
-            ArrayList<String> parsedData = parse(data);
-            int serialNum = Integer.parseInt(parsedData.get(0));
-            int commandCode = Integer.parseInt(parsedData.get(1));
-            parsedData.remove(0);
-            parsedData.remove(0);
-            isStop = true;
-            return new Command(serialNum, commandCode, parsedData);
+        String data = this.data;
+        if (data == null || data.isEmpty()) {
+            return new Command(9999, 9999, new ArrayList<>());  //若沒有資料，則傳出一個預設值
         }
+        ArrayList<String> parsedData = parse(data);
+        int serialNum = Integer.parseInt(parsedData.get(0));
+        int commandCode = Integer.parseInt(parsedData.get(1));
+        parsedData.remove(0);
+        parsedData.remove(0);
+        return new Command(serialNum, commandCode, parsedData);
     }
 
     public static ArrayList<String> parse(String data) {
