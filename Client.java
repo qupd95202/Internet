@@ -19,11 +19,13 @@ public class Client {
         private int serialNum;
         private int commandCode;
         private ArrayList<String> strs;
+        private String IP;
 
-        public Command(int serialNum, int commandCode, ArrayList<String> strs) {
+        public Command(int serialNum, int commandCode, String IP ,ArrayList<String> strs) {
             this.commandCode = commandCode;
             this.serialNum = serialNum;
             this.strs = strs;
+            this.IP = IP;
         }
 
         public int getSerialNum() {
@@ -51,6 +53,10 @@ public class Client {
             client = new Client();
         }
         return client;
+    }
+
+    public String getIP() {
+         return socket.getLocalAddress().toString();
     }
 
     public static String getLocalAddress() {
@@ -104,6 +110,8 @@ public class Client {
         input.append(command.serialNum);
         input.append(",");
         input.append(command.commandCode);
+        input.append(",");
+        input.append(command.IP);
         for (String string : command.strs) {
             input.append(",");
             input.append(string);
@@ -117,14 +125,16 @@ public class Client {
         String data = this.data;
         synchronized (data) {
             if (data.isEmpty()) {
-                return new Command(9999, 9999, new ArrayList<>());  //若沒有資料，則傳出一個預設值
+                return new Command(9999, 9999, "",new ArrayList<>());  //若沒有資料，則傳出一個預設值
             }
             ArrayList<String> parsedData = parse(data);
             int serialNum = Integer.parseInt(parsedData.get(0));
             int commandCode = Integer.parseInt(parsedData.get(1));
+            String IP = parsedData.get(2);
             parsedData.remove(0);
             parsedData.remove(0);
-            return new Command(serialNum, commandCode, parsedData);
+            parsedData.remove(0);
+            return new Command(serialNum, commandCode, IP,parsedData);
         }
     }
 
