@@ -90,15 +90,6 @@ public class Client {
                 }
             }
         }).start();
-        if (in == null || data.equals("")) {
-            return new Command(9999, 9999, new ArrayList<>());  //若沒有資料，則傳出一個預設值
-        }
-        ArrayList<String> parsedData = parse(data);
-        int serialNum = Integer.parseInt(parsedData.get(0));
-        int commandCode = Integer.parseInt(parsedData.get(1));
-        parsedData.remove(0);
-        parsedData.remove(0);
-        return new Command(serialNum, commandCode, parsedData);
     }
 
     public void closeConnect() throws IOException {
