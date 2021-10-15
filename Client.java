@@ -115,15 +115,17 @@ public class Client {
 
     public Command getCommand() {
         String data = this.data;
-        if (data == null || data.isEmpty()) {
-            return new Command(9999, 9999, new ArrayList<>());  //若沒有資料，則傳出一個預設值
+        synchronized (data) {
+            if (data.isEmpty()) {
+                return new Command(9999, 9999, new ArrayList<>());  //若沒有資料，則傳出一個預設值
+            }
+            ArrayList<String> parsedData = parse(data);
+            int serialNum = Integer.parseInt(parsedData.get(0));
+            int commandCode = Integer.parseInt(parsedData.get(1));
+            parsedData.remove(0);
+            parsedData.remove(0);
+            return new Command(serialNum, commandCode, parsedData);
         }
-        ArrayList<String> parsedData = parse(data);
-        int serialNum = Integer.parseInt(parsedData.get(0));
-        int commandCode = Integer.parseInt(parsedData.get(1));
-        parsedData.remove(0);
-        parsedData.remove(0);
-        return new Command(serialNum, commandCode, parsedData);
     }
 
     public static ArrayList<String> parse(String data) {
