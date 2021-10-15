@@ -62,7 +62,11 @@ public class Client {
             @Override
             public void run() {
                 try {
-                    connect(port, serverIP);
+                    //建立連線指定Ip和埠的socket
+                    socket = new Socket(serverIP, port);
+                    //獲取系統標準輸入流
+                    out = new PrintWriter(socket.getOutputStream());
+                    in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -70,13 +74,7 @@ public class Client {
         }).start();
     }
 
-    private void connect(int port, String serverIP) throws IOException {
-        //建立連線指定Ip和埠的socket
-        socket = new Socket(serverIP, port);
-        //獲取系統標準輸入流
-        out = new PrintWriter(socket.getOutputStream());
-        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        //建立一個執行緒用於讀取伺服器的資訊
+    public void connect() throws IOException {
         new Thread(new Runnable() {
             @Override
             public void run() {
